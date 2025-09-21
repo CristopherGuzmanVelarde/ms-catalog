@@ -556,5 +556,4 @@ mvn clean compile
 
 *Microservicio de Catálogo TechTrend - Versión 1.0.0*
 
-
 </div>
