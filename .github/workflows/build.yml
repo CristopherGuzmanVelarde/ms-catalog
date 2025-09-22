@@ -1,14 +1,15 @@
-name: SonarQube
+name: SonarQube with JaCoCo Coverage
 on:
   push:
     branches:
       - master
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build and analyze
+  test-and-analyze:
+    name: Test, Coverage and SonarQube Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +20,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu'
+          distribution: 'temurin'
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -35,8 +36,36 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze
+      - name: Run tests and generate JaCoCo report
+        run: mvn clean test jacoco:report
+
+      - name: Verify minimum coverage
+        run: mvn jacoco:check
+
+      - name: Build and analyze with SonarQube
         env:
-          SONAR_TOKEN: "f718189ad4e234d061fe85fb47db9cf72411ed62"   
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar \
-          -Dsonar.projectKey=kasandrachumpitazchipana_ms-catalog
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Usar secrets para el token
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=kasandrachumpitazchipana_ms-catalog \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=kasandrachumpitazchipana \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+      - name: Upload JaCoCo coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-reports
+          path: |
+            target/site/jacoco/
+            target/jacoco.exec
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
