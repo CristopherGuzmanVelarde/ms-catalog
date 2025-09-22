@@ -5,7 +5,7 @@
 ![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen?style=for-the-badge&logo=springboot)
 ![JUnit 5](https://img.shields.io/badge/JUnit-5-green?style=for-the-badge&logo=junit5)
-![Mockito](https://img.shields.io/badge/Mockito-Latest-blue?style=for-the-badge&l#### **Patrón AAA (Arrange-Act-Assert)**
+![Mockito](https://img.shields.io/badge/Mockito-Latest-blue?style=for-the-badge&l)#### **Patrón AAA (Arrange-Act-Assert)**
 📁 **Archivo:** `s#### **Organización de Datos d#### **Gestión de Recursos**
 📁 **Archivo:** `src/test/java/com/techtrend/catalog/repository/ProductRepositoryTest.java`
 ```java
