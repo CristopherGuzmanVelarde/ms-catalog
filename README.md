@@ -5,12 +5,59 @@
 ![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen?style=for-the-badge&logo=springboot)
 ![JUnit 5](https://img.shields.io/badge/JUnit-5-green?style=for-the-badge&logo=junit5)
-![Mockito](https://img.shields.io/badge/Mockito-Latest-blue?style=for-the-badge&logo=mockito)
-![Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen?style=for-the-badge&logo=codecov)
+![Mockito](https://img.shields.io/badge/Mockito-Latest-blue?style=for-the-badge&l#### **Patrón AAA (Arrange-Act-Assert)**
+📁 **Archivo:** `s#### **Organización de Datos d#### **Gestión de Recursos**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/repository/ProductRepositoryTest.java`
+```java
+@BeforeEach
+void setUp() {
+    // 🔧 Configuración común para todas las pruebas
+    productRepository = new ProductRepositoryImpl();
+    System.out.println("✅ Repository inicializado con datos mock");
+}
+
+@AfterEach  
+void tearDown() {
+    // 🧹 Limpieza opcional de recursos
+    // No necesaria para mocks en memoria
+}
+```Archivo:** `src/test/java/com/techtrend/catalog/model/ProductTest.java`
+```java
+// ✅ Datos de prueba bien organizados
+@ParameterizedTest
+@CsvSource({
+    "STOCK_ALTO,    100,  10, true",
+    "STOCK_JUSTO,    10,  10, true", 
+    "STOCK_BAJO,      5,  10, false",
+    "STOCK_CERO,      0,   1, false"
+})
+void stockValidationScenarios(String scenario, int stock, int requested, boolean expected) {
+    // Cada fila representa un escenario de negocio específico
+}
+```m/techtrend/catalog/service/CatalogServiceTest.java`
+```java
+@Test
+@DisplayName("✅ Stock suficiente debe retornar true usando repository")
+void shouldReturnTrueWhenStockIsSufficient() {
+    // 🔧 ARRANGE - Configuración del escenario
+    Product productWithStock = new Product("1", "Laptop", new BigDecimal("9999.99"), 50);
+    when(productRepository.findById("1")).thenReturn(Mono.just(productWithStock));
+    
+    // ⚡ ACT - Ejecución de la funcionalidad
+    Mono<Boolean> result = catalogService.checkStock("1", 10);
+    
+    // ✅ ASSERT - Verificación del resultado  
+    StepVerifier.create(result)
+            .expectNext(true)
+            .verifyComplete();
+}
+```rage](https://img.shields.io/badge/Coverage-85%25-brightgreen?style=for-the-badge&logo=codecov)
 
 </div>
 
----
+-| **Tiempo de Ejecución** | <10s | ~10s | ✅ Óptimo |
+| 🚫 **Fallos** | 0 | 0 | ✅ Perfecto |
+| 🎯 **Total Pruebas** | >50 | 61 | ✅ Superado |
 
 ## 📋 **ÍNDICE**
 
@@ -31,10 +78,12 @@
 ### ✅ **Estado del Proyecto**
 ```
 ✅ Cobertura Total: 85% (Superior al 80% requerido)
-✅ Pruebas Parametrizadas: 4 implementadas
+✅ Pruebas Parametrizadas: 4 implementadas y funcionando
 ✅ Arquitectura Completa: Model + Service + Repository + Controller
-✅ Zero Fallos: 59 pruebas ejecutándose sin errores
-✅ Tiempo de Ejecución: < 7 segundos
+✅ Zero Fallos: 61 pruebas ejecutándose sin errores
+✅ Tiempo de Ejecución: ~10 segundos
+✅ Mocks Reactivos: Configurados correctamente para WebFlux
+✅ Pipeline Maven: Funcional con JaCoCo y Surefire
 ```
 
 ### 🎯 **Objetivos Alcanzados**
@@ -121,6 +170,7 @@ pie title Distribución de Pruebas (59 total)
 ### 🎯 **Las 4 Pruebas Parametrizadas Implementadas**
 
 #### 1️⃣ **Validación de Disponibilidad de Productos**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/model/ProductTest.java`
 ```java
 @ParameterizedTest
 @ValueSource(ints = {1, 5, 10, 25, 50, 100})
@@ -133,6 +183,7 @@ void productsWithPositiveStockShouldBeAvailable(int stock) {
 **🎯 Propósito:** Valida que productos con diferentes niveles de stock sean correctamente identificados como disponibles.
 
 #### 2️⃣ **Validación de Stock vs Demanda**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/model/ProductTest.java`
 ```java
 @ParameterizedTest
 @CsvSource({
@@ -149,6 +200,7 @@ void stockValidationWithDifferentCombinations(int available, int requested, bool
 **🎯 Propósito:** Verifica la lógica de negocio crítica para comparar stock disponible vs solicitado.
 
 #### 3️⃣ **Búsqueda de Productos por ID**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/repository/ProductRepositoryTest.java`
 ```java
 @ParameterizedTest
 @ValueSource(strings = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"})
@@ -163,6 +215,7 @@ void shouldFindExistingProductsByDifferentIds(String productId) {
 **🎯 Propósito:** Asegura que la búsqueda por ID funcione correctamente para todos los productos del catálogo.
 
 #### 4️⃣ **Endpoints REST con Diferentes Productos**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/controller/CatalogControllerTest.java`
 ```java
 @ParameterizedTest
 @CsvSource({
@@ -215,6 +268,7 @@ graph TD
 ### 🔧 **Implementación de Mocks**
 
 #### **Service Layer Mocking**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/service/CatalogServiceTest.java`
 ```java
 @ExtendWith(MockitoExtension.class)
 @DisplayName("🛍️ Catalog Service - Lógica de Negocio")
@@ -223,8 +277,13 @@ class CatalogServiceTest {
     @Mock
     private ProductRepository productRepository;
     
-    @InjectMocks
     private CatalogServiceImpl catalogService;
+    
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        catalogService = new CatalogServiceImpl(productRepository);
+    }
     
     @Test
     void shouldReturnTrueWhenStockIsSufficient() {
@@ -244,6 +303,7 @@ class CatalogServiceTest {
 ```
 
 #### **Controller Layer Mocking**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/controller/CatalogControllerTest.java`
 ```java
 @WebFluxTest(CatalogController.class)
 @DisplayName("🌐 Catalog Controller - Endpoints REST")
@@ -291,6 +351,7 @@ class CatalogControllerTest {
 - Casos límite bien cubiertos
 
 **🔧 Métodos Probados:**
+📁 **Implementación:** `src/main/java/com/techtrend/catalog/model/Product.java`
 - `hasStock(Integer quantity)` → 8 escenarios parametrizados
 - `isAvailable()` → 6 escenarios parametrizados  
 - Getters/Setters → Cobertura completa
@@ -299,6 +360,8 @@ class CatalogControllerTest {
 ### 🗄️ **Capa REPOSITORY (100% Cobertura)**
 
 **🎯 Cobertura Perfecta Alcanzada:**
+📁 **Interface:** `src/main/java/com/techtrend/catalog/repository/ProductRepository.java`
+📁 **Implementación:** `src/main/java/com/techtrend/catalog/repository/ProductRepositoryImpl.java`
 ```java
 // Métodos 100% cubiertos:
 ✅ findAll() - Retorna todos los productos
@@ -323,6 +386,7 @@ class CatalogControllerTest {
 - Oportunidad de agregar pruebas de integración
 
 **🎯 Plan de Mejora:**
+📁 **Implementación:** `src/main/java/com/techtrend/catalog/service/CatalogServiceImpl.java`
 ```java
 // Próximas pruebas a implementar:
 - Validación de parámetros nulos
@@ -368,6 +432,43 @@ mvn surefire-report:report
 
 # 🔍 Modo verbose para debugging
 mvn test -X
+
+# ✅ Compilación y pruebas por separado (recomendado)
+mvn clean compile test-compile
+mvn surefire:test
+```
+
+### 🔧 **Solución de Problemas Comunes**
+
+#### **NullPointerException en Tests Reactivos**
+Si encuentras errores como "Cannot invoke reactor.core.publisher.Flux.filter" es porque los mocks de Mockito retornan `null` por defecto. 
+
+**✅ Solución Aplicada:**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/service/CatalogServiceTest.java`
+```java
+// ❌ Problemático con @InjectMocks
+@InjectMocks
+private CatalogServiceImpl catalogService;
+
+// ✅ Solución: Crear instancia manualmente
+@BeforeEach
+void setUp() {
+    MockitoAnnotations.openMocks(this);
+    catalogService = new CatalogServiceImpl(productRepository);
+}
+```
+
+#### **Advertencias de JaCoCo con Java 24**
+Las advertencias de "Unsupported class file major version 68" son normales con Java 24 y JaCoCo 0.8.10. No afectan la funcionalidad de las pruebas.
+
+#### **Configuración Timeout en Tests Reactivos**
+📁 **Archivo:** `src/test/java/com/techtrend/catalog/service/CatalogServiceTest.java`
+```java
+// ✅ Agregar timeout explícito
+StepVerifier.create(result)
+    .expectNext(expectedValue)
+    .expectComplete()
+    .verify(Duration.ofSeconds(5));
 ```
 
 ### 📊 **Visualización de Resultados**
@@ -493,7 +594,7 @@ graph LR
 ```
 
 ### ⚙️ **Configuración Maven para CI/CD**
-
+📁 **Archivo:** `pom.xml`
 ```xml
 <!-- Plugin de Surefire para ejecución de pruebas -->
 <plugin>
@@ -552,17 +653,75 @@ graph LR
 - [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
 - [Spring Boot Testing Guide](https://spring.io/guides/gs/testing-web/)
 
+### 🎓 **Próximos Pasos**
+
+1. **Mejorar cobertura del Service y Controller** hasta 80%
+2. **Implementar pruebas de integración** end-to-end
+3. **Agregar análisis estático** con SonarQube
+4. **Configurar pipeline CI/CD** completo
+5. **Documentar casos de prueba** adicionales
+
 ---
 
 <div align="center">
 
 ## 🏆 **¡COBERTURA TÉCNICA COMPLETADA!**
 
-**85% de cobertura | 4 pruebas parametrizadas | 59 pruebas exitosas**
+**85% de cobertura | 4 pruebas parametrizadas | 61 pruebas exitosas | 0 fallos**
 
 *Desarrollado con ❤️ por el equipo TechTrend*
 
 </div>
+
+---
+
+## 📂 **MAPA DE ARCHIVOS DEL PROYECTO**
+
+### 🏗️ **Código Fuente Principal**
+```
+📦 src/main/java/com/techtrend/catalog/
+├── 🚀 CatalogMicroserviceApplication.java          // Clase principal Spring Boot
+├── 🏷️  model/
+│   └── Product.java                                // Entidad del dominio
+├── 🗄️  repository/
+│   ├── ProductRepository.java                      // Interface del repositorio
+│   └── ProductRepositoryImpl.java                  // Implementación in-memory
+├── 💼 service/
+│   ├── CatalogService.java                         // Interface del servicio
+│   └── CatalogServiceImpl.java                     // Lógica de negocio
+└── 🌐 controller/
+    └── CatalogController.java                      // Endpoints REST API
+```
+
+### 🧪 **Código de Pruebas**
+```
+📦 src/test/java/com/techtrend/catalog/
+├── 🚀 CatalogMicroserviceApplicationTest.java      // Test de contexto Spring
+├── 🏷️  model/
+│   └── ProductTest.java                            // 18 tests (2 parametrizadas)
+├── 🗄️  repository/
+│   └── ProductRepositoryTest.java                  // 22 tests (2 parametrizadas)  
+├── 💼 service/
+│   └── CatalogServiceTest.java                     // 8 tests (mocks)
+└── 🌐 controller/
+    └── CatalogControllerTest.java                  // 12 tests (1 parametrizada)
+```
+
+### 📋 **Configuración**
+```
+📦 Archivos de configuración
+├── 📄 pom.xml                                      // Maven: dependencias y plugins
+├── 📄 src/main/resources/application.yml           // Configuración Spring Boot
+└── 📄 src/test/resources/junit-platform.properties // Configuración JUnit 5
+```
+
+### 📊 **Reportes Generados**
+```
+📦 target/
+├── 📊 site/jacoco/index.html                       // Reporte de cobertura JaCoCo
+├── 📊 site/surefire-report.html                    // Reporte de pruebas Surefire
+└── 📄 jacoco.exec                                  // Datos binarios de cobertura
+```
 
 ---
 
@@ -571,3 +730,9 @@ graph LR
 - **v1.0.0** - Implementación completa de cobertura técnica
 - **v1.0.1** - Optimización de pruebas parametrizadas
 - **v1.0.2** - Mejora de cobertura del repositorio (100%)
+- **v1.1.0** - ✅ **SOLUCIÓN DE ERRORES**: Mocks reactivos funcionando correctamente
+  - Corregidos NullPointerException en CatalogServiceTest
+  - 61 pruebas pasando sin fallos
+  - Configuración manual de instancias en lugar de @InjectMocks
+  - Timeouts explícitos en StepVerifier para mayor estabilidad
+  - Documentación actualizada con soluciones de problemas comunes
