@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ms-catalog
+  webflux:
+    base-path: /
+
+logging:
+  level:
+    pe.edu.vallegrande.ms_catalog: DEBUG
+    reactor: DEBUG
