@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+catalog-microservice,com.techtrend.catalog.service,CatalogServiceImpl,41,6,2,0,9,3,6,1,5,1
+catalog-microservice,com.techtrend.catalog,CatalogMicroserviceApplication,5,3,0,0,2,1,1,1,1,1
+catalog-microservice,com.techtrend.catalog.model,Product,5,128,7,11,0,29,7,16,0,14
+catalog-microservice,com.techtrend.catalog.repository,ProductRepositoryImpl,0,356,0,4,0,37,0,13,0,11
+catalog-microservice,com.techtrend.catalog.controller,CatalogController,35,6,0,0,10,3,4,1,4,1

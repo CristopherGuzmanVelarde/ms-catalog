@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">catalog-microservice</a> &gt; <a href="index.source.html" class="el_package">com.techtrend.catalog.repository</a> &gt; <span class="el_source">ProductRepositoryImpl.java</span></div><h1>ProductRepositoryImpl.java</h1><pre class="source lang-java linenums">package com.techtrend.catalog.repository;
+
+import com.techtrend.catalog.model.Product;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Implementación del repositorio de productos usando datos mock en memoria
+ * 
+ * Simula un repositorio de datos para desarrollo y pruebas.
+ * En producción, se reemplazaría por implementaciones con BD real.
+ * 
+ * @author TechTrend Development Team
+ */
+@Repository
+public class ProductRepositoryImpl implements ProductRepository {
+    
+    private final Map&lt;String, Product&gt; products;
+    
+<span class="fc" id="L25">    public ProductRepositoryImpl() {</span>
+<span class="fc" id="L26">        this.products = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L27">        initializeMockData();</span>
+<span class="fc" id="L28">    }</span>
+    
+    private void initializeMockData() {
+        // 🖥️ Computadoras
+<span class="fc" id="L32">        products.put(&quot;1&quot;, new Product(&quot;1&quot;, &quot;Laptop Ryzen 7&quot;, new BigDecimal(&quot;9999.99&quot;), 50));</span>
+<span class="fc" id="L33">        products.put(&quot;2&quot;, new Product(&quot;2&quot;, &quot;Desktop Intel i7&quot;, new BigDecimal(&quot;7999.99&quot;), 25));</span>
+<span class="fc" id="L34">        products.put(&quot;3&quot;, new Product(&quot;3&quot;, &quot;MacBook Pro M2&quot;, new BigDecimal(&quot;15999.99&quot;), 15));</span>
+        
+        // 🎮 Gaming
+<span class="fc" id="L37">        products.put(&quot;4&quot;, new Product(&quot;4&quot;, &quot;PlayStation 5&quot;, new BigDecimal(&quot;4999.99&quot;), 30));</span>
+<span class="fc" id="L38">        products.put(&quot;5&quot;, new Product(&quot;5&quot;, &quot;Xbox Series X&quot;, new BigDecimal(&quot;4799.99&quot;), 20));</span>
+<span class="fc" id="L39">        products.put(&quot;6&quot;, new Product(&quot;6&quot;, &quot;Nintendo Switch&quot;, new BigDecimal(&quot;2999.99&quot;), 40));</span>
+        
+        // 📱 Móviles
+<span class="fc" id="L42">        products.put(&quot;7&quot;, new Product(&quot;7&quot;, &quot;iPhone 15 Pro&quot;, new BigDecimal(&quot;12999.99&quot;), 35));</span>
+<span class="fc" id="L43">        products.put(&quot;8&quot;, new Product(&quot;8&quot;, &quot;Samsung Galaxy S24&quot;, new BigDecimal(&quot;8999.99&quot;), 45));</span>
+<span class="fc" id="L44">        products.put(&quot;9&quot;, new Product(&quot;9&quot;, &quot;Google Pixel 8&quot;, new BigDecimal(&quot;6999.99&quot;), 25));</span>
+        
+        // ⌚ Wearables
+<span class="fc" id="L47">        products.put(&quot;10&quot;, new Product(&quot;10&quot;, &quot;Apple Watch Series 9&quot;, new BigDecimal(&quot;3999.99&quot;), 60));</span>
+<span class="fc" id="L48">        products.put(&quot;11&quot;, new Product(&quot;11&quot;, &quot;Samsung Galaxy Watch&quot;, new BigDecimal(&quot;2499.99&quot;), 40));</span>
+        
+        // 🎧 Audio
+<span class="fc" id="L51">        products.put(&quot;12&quot;, new Product(&quot;12&quot;, &quot;AirPods Pro&quot;, new BigDecimal(&quot;2299.99&quot;), 80));</span>
+<span class="fc" id="L52">        products.put(&quot;13&quot;, new Product(&quot;13&quot;, &quot;Sony WH-1000XM5&quot;, new BigDecimal(&quot;1999.99&quot;), 55));</span>
+        
+        // 🖱️ Periféricos
+<span class="fc" id="L55">        products.put(&quot;14&quot;, new Product(&quot;14&quot;, &quot;Mouse Gaming&quot;, new BigDecimal(&quot;299.99&quot;), 100));</span>
+<span class="fc" id="L56">        products.put(&quot;15&quot;, new Product(&quot;15&quot;, &quot;Teclado Mecánico&quot;, new BigDecimal(&quot;599.99&quot;), 0)); // Sin stock</span>
+<span class="fc" id="L57">        products.put(&quot;16&quot;, new Product(&quot;16&quot;, &quot;Monitor 4K&quot;, new BigDecimal(&quot;3999.99&quot;), 0)); // Sin stock</span>
+<span class="fc" id="L58">    }</span>
+    
+    @Override
+    public Flux&lt;Product&gt; findAll() {
+<span class="fc" id="L62">        return Flux.fromIterable(products.values());</span>
+    }
+    
+    @Override
+    public Mono&lt;Product&gt; findById(String id) {
+<span class="fc" id="L67">        return Mono.justOrEmpty(products.get(id));</span>
+    }
+    
+    @Override
+    public Mono&lt;Product&gt; save(Product product) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (product.getId() == null) {</span>
+            // Generar ID automático para nuevos productos
+<span class="fc" id="L74">            String newId = String.valueOf(products.size() + 1);</span>
+<span class="fc" id="L75">            product.setId(newId);</span>
+        }
+<span class="fc" id="L77">        products.put(product.getId(), product);</span>
+<span class="fc" id="L78">        return Mono.just(product);</span>
+    }
+    
+    @Override
+    public Mono&lt;Boolean&gt; deleteById(String id) {
+<span class="fc" id="L83">        boolean existed = products.containsKey(id);</span>
+<span class="fc" id="L84">        products.remove(id);</span>
+<span class="fc" id="L85">        return Mono.just(existed);</span>
+    }
+    
+    @Override
+    public Mono&lt;Boolean&gt; existsById(String id) {
+<span class="fc" id="L90">        return Mono.just(products.containsKey(id));</span>
+    }
+    
+    @Override
+    public Flux&lt;Product&gt; findByQuantityGreaterThan(Integer minStock) {
+<span class="fc" id="L95">        return Flux.fromIterable(products.values())</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                .filter(product -&gt; product.getQuantity() &gt; minStock);</span>
+    }
+    
+    @Override
+    public Flux&lt;Product&gt; findByNameContainingIgnoreCase(String name) {
+<span class="fc" id="L101">        return Flux.fromIterable(products.values())</span>
+<span class="fc" id="L102">                .filter(product -&gt; product.getName().toLowerCase()</span>
+<span class="fc" id="L103">                        .contains(name.toLowerCase()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

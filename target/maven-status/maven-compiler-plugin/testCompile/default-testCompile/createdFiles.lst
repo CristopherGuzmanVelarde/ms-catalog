@@ -1,0 +1,4 @@
+com\techtrend\catalog\CatalogMicroserviceApplicationTest.class
+com\techtrend\catalog\controller\CatalogControllerTest.class
+com\techtrend\catalog\model\ProductTest.class
+com\techtrend\catalog\service\CatalogServiceTest.class
