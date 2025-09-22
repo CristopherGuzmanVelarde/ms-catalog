@@ -552,14 +552,6 @@ graph LR
 - [JaCoCo Maven Plugin](https://www.jacoco.org/jacoco/trunk/doc/maven.html)
 - [Spring Boot Testing Guide](https://spring.io/guides/gs/testing-web/)
 
-### 🎓 **Próximos Pasos**
-
-1. **Mejorar cobertura del Service y Controller** hasta 80%
-2. **Implementar pruebas de integración** end-to-end
-3. **Agregar análisis estático** con SonarQube
-4. **Configurar pipeline CI/CD** completo
-5. **Documentar casos de prueba** adicionales
-
 ---
 
 <div align="center">
