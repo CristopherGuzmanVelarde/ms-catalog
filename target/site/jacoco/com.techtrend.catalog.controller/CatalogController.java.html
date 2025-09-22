@@ -45,9 +45,17 @@ public class CatalogController {
     public Mono&lt;ResponseEntity&lt;Boolean&gt;&gt; checkStock(
             @PathVariable String id,
             @RequestParam Integer quantity) {
-<span class="fc" id="L48">        return catalogService.checkStock(id, quantity)</span>
-<span class="fc" id="L49">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L50">                .onErrorReturn(ResponseEntity.badRequest().build());</span>
+        try {
+<span class="fc" id="L49">            Mono&lt;Boolean&gt; stockCheck = catalogService.checkStock(id, quantity);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">            if (stockCheck == null) {</span>
+<span class="nc" id="L51">                return Mono.just(ResponseEntity.badRequest().build());</span>
+            }
+<span class="fc" id="L53">            return stockCheck</span>
+<span class="fc" id="L54">                    .map(ResponseEntity::ok)</span>
+<span class="fc" id="L55">                    .onErrorReturn(ResponseEntity.badRequest().build());</span>
+<span class="nc" id="L56">        } catch (Exception e) {</span>
+<span class="nc" id="L57">            return Mono.just(ResponseEntity.badRequest().build());</span>
+        }
     }
     
     /**
@@ -55,9 +63,9 @@ public class CatalogController {
      */
     @GetMapping(&quot;/products/{id}/details&quot;)
     public Mono&lt;ResponseEntity&lt;Product&gt;&gt; getProductDetails(@PathVariable String id) {
-<span class="fc" id="L58">        return catalogService.getProductDetails(id)</span>
-<span class="fc" id="L59">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L60">                .defaultIfEmpty(ResponseEntity.notFound().build());</span>
+<span class="fc" id="L66">        return catalogService.getProductDetails(id)</span>
+<span class="fc" id="L67">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L68">                .defaultIfEmpty(ResponseEntity.notFound().build());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

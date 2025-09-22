@@ -45,9 +45,17 @@ public class CatalogController {
     public Mono<ResponseEntity<Boolean>> checkStock(
             @PathVariable String id,
             @RequestParam Integer quantity) {
-        return catalogService.checkStock(id, quantity)
-                .map(ResponseEntity::ok)
-                .onErrorReturn(ResponseEntity.badRequest().build());
+        try {
+            Mono<Boolean> stockCheck = catalogService.checkStock(id, quantity);
+            if (stockCheck == null) {
+                return Mono.just(ResponseEntity.badRequest().build());
+            }
+            return stockCheck
+                    .map(ResponseEntity::ok)
+                    .onErrorReturn(ResponseEntity.badRequest().build());
+        } catch (Exception e) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
     }
     
     /**
