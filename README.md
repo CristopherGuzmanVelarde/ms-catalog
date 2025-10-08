@@ -1,560 +1,471 @@
-# 🛍️ Microservicio de Catálogo - TechTrend
+# 🧪 Pruebas de Integración REST - Catalog Microservice
 
-<div align="center">
+## 📋 Índice
 
-![Java](https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen?style=for-the-badge&logo=spring)
-![WebFlux](https://img.shields.io/badge/WebFlux-Reactive-blue?style=for-the-badge&logo=spring)
-![Maven](https://img.shields.io/badge/Maven-3.6+-red?style=for-the-badge&logo=apache-maven)
-![Tests](https://img.shields.io/badge/Tests-21%20Passing-success?style=for-the-badge&logo=junit5)
-
-*Microservicio reactivo para gestión de catálogo de productos en la plataforma e-commerce TechTrend*
-
-</div>
+1. [Descripción General](#-descripción-general)
+2. [Ejecución Rápida](#-ejecución-rápida)
+3. [Endpoints de Prueba](#-endpoints-de-prueba)
+4. [Casos de Prueba](#-casos-de-prueba)
+5. [Pruebas con Postman](#-pruebas-con-postman)
+6. [Troubleshooting](#-troubleshooting)
 
 ---
 
-## 📋 Tabla de Contenidos
+## 📖 Descripción General
 
-- [🎯 Descripción](#-descripción)
-- [✨ Funcionalidades](#-funcionalidades)
-- [🏗️ Arquitectura](#️-arquitectura)
-- [🚀 Tecnologías](#-tecnologías)
-- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
-- [🔌 API Endpoints](#-api-endpoints)
-- [⚡ Inicio Rápido](#-inicio-rápido)
-- [🧪 Pruebas](#-pruebas)
-- [📊 Datos Mock](#-datos-mock)
-- [🔧 Configuración](#-configuración)
-- [📈 Monitoreo](#-monitoreo)
-- [🤝 Contribución](#-contribución)
+Las **Pruebas de Integración REST** validan el comportamiento completo del microservicio desde la perspectiva de un cliente HTTP real (Postman, frontend, otro microservicio).
 
----
+### 🎯 Qué Validan
 
-## 🎯 Descripción
-
-El **Microservicio de Catálogo** es un componente clave de la plataforma e-commerce TechTrend, diseñado para gestionar el inventario y la información de productos de manera eficiente y escalable.
-
-### 🎪 Caso de Uso Principal
-> *"Un cliente verifica si una laptop está disponible antes de añadirla al carrito"*
-
-### 🏢 Contexto Empresarial
-TechTrend es una plataforma de e-commerce especializada en equipos informáticos que requiere:
-- ✅ **Seguridad**: Manejo de datos sensibles y validaciones robustas
-- ✅ **Experiencia del Usuario**: Funcionalidades confiables para compras fluidas  
-- ✅ **Escalabilidad**: Soporte de tráfico de liquidaciones y ventas masivas
-- ✅ **Mantenibilidad**: Arquitectura que facilite actualizaciones y regresiones
-
----
-
-## ✨ Funcionalidades
-
-| Funcionalidad | Descripción | Endpoint |
-|---------------|-------------|----------|
-| 📦 **Listar Productos** | Obtiene todos los productos disponibles en stock | `GET /api/catalog/products` |
-| 🔍 **Buscar Producto** | Encuentra un producto específico por ID | `GET /api/catalog/products/{id}` |
-| 📊 **Verificar Stock** | Valida disponibilidad para cantidad solicitada | `GET /api/catalog/products/{id}/stock` |
-| 📋 **Detalles Producto** | Información completa (nombre, precio, stock) | `GET /api/catalog/products/{id}/details` |
-
-### 🎯 Requisitos Empresariales Cubiertos
-- ✅ Inventarios precisos y actualizados
-- ✅ Prevención de compras de productos agotados
-- ✅ Experiencia de usuario mejorada
-- ✅ Integración con otros microservicios (Carrito, Pagos)
-
----
-
-## 🏗️ Arquitectura
-
-### Arquitectura Hexagonal (Ports & Adapters)
-
-```mermaid
-graph TB
-    subgraph "🌐 Adaptadores de Entrada"
-        REST[REST Controller]
-    end
-    
-    subgraph "💼 Dominio de Negocio"
-        SERVICE[Catalog Service]
-        MODEL[Product Model]
-    end
-    
-    subgraph "🔌 Puertos"
-        PORT[CatalogService Interface]
-    end
-    
-    subgraph "💾 Adaptadores de Salida"
-        MOCK[Mock Data Repository]
-    end
-    
-    REST --> PORT
-    PORT --> SERVICE
-    SERVICE --> MODEL
-    SERVICE --> MOCK
+✅ **Flujo Completo End-to-End:**
+```
+Cliente HTTP → Controller → Service → Repository → Response JSON
 ```
 
-### 🔄 Flujo Reactivo
+✅ **Aspectos Técnicos:**
+- Códigos de estado HTTP (200, 404, 400)
+- Estructura y formato de respuestas JSON
+- Manejo de errores y validaciones
+- Tiempos de respuesta y throughput
+
+### 📊 Cobertura
+
+| Tipo | Tests | % |
+|------|-------|---|
+| ✅ Happy Path (casos exitosos) | 7 | 47% |
+| ❌ Error Handling (manejo errores) | 6 | 40% |
+| ⚡ Performance (rendimiento) | 2 | 13% |
+| **TOTAL** | **15** | **100%** |
+
+---
+
+## ⚡ Ejecución Rápida
+
+### Paso 1: Iniciar el Servidor
+
+```bash
+# Iniciar el servidor
+mvn spring-boot:run
+
+# Esperar mensaje: "Netty started on port 8080"
 ```
-Cliente → Controller → Service → Mono/Flux → Respuesta JSON
+
+### Paso 2: Ejecutar las Pruebas
+
+**Opción A: Maven Command Line**
+```bash
+# Ejecutar solo las pruebas de integración
+mvn test -Dtest=CatalogRestIntegrationTest
+
+# Sin JaCoCo (si hay problemas de compatibilidad)
+mvn test -Dtest=CatalogRestIntegrationTest -Djacoco.skip=true
+
+# Con output detallado
+mvn test -Dtest=CatalogRestIntegrationTest -X
+```
+
+**Opción B: IDE (IntelliJ / Eclipse / VS Code)**
+1. Abrir: `src/test/java/com/techtrend/catalog/integration/CatalogRestIntegrationTest.java`
+2. Click derecho → **Run Test**
+3. Ver resultados en la consola
+
+### Resultado Esperado
+
+```
+================================================================================
+🚀 Iniciando Pruebas de Integración REST
+📍 Puerto: 52291
+🌐 Base URL: /api/catalog
+================================================================================
+
+📝 TEST 1: Listando todos los productos...
+   ✓ Total de productos: 14
+   ✓ Status HTTP: 200 OK
+⏱️  ✅ GET /products - Tiempo: 245ms
+
+...
+
+================================================================================
+✅ Pruebas de Integración REST Completadas
+================================================================================
+
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
 ```
 
 ---
 
-## 🚀 Tecnologías
+## 🌐 Endpoints de Prueba
 
-### Core Stack
-- **☕ Java 17** - LTS con características modernas
-- **🍃 Spring Boot 3.2.0** - Framework de aplicación
-- **⚡ Spring WebFlux** - Programación reactiva no-bloqueante
-- **🔧 Maven** - Gestión de dependencias y build
+### Tabla Completa de Endpoints para Postman
 
-### Testing Stack
-- **🧪 JUnit 5** - Framework de pruebas unitarias
-- **🎭 Mockito** - Mocking y stubbing
-- **🔬 Reactor Test** - Testing para streams reactivos
-- **🌐 WebTestClient** - Testing de endpoints REST
+> ⚠️ **Base URL:** `http://localhost:8080/api/catalog`
 
-### Dependencias Clave
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-webflux</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-</dependencies>
-```
+| # | Método | Endpoint | Descripción | Parámetros | Status Esperado |
+|---|--------|----------|-------------|------------|-----------------|
+| 1 | GET | `/products` | Listar todos los productos disponibles | - | 200 OK |
+| 2 | GET | `/products/1` | Obtener producto existente | - | 200 OK |
+| 3 | GET | `/products/999` | Obtener producto inexistente | - | 404 Not Found |
+| 4 | GET | `/products/1/stock?quantity=10` | Verificar stock suficiente | `quantity=10` | 200 OK |
+| 5 | GET | `/products/3/stock?quantity=100` | Verificar stock insuficiente | `quantity=100` | 200 OK |
+| 6 | GET | `/products/1/stock?quantity=-5` | Validar cantidad negativa | `quantity=-5` | 400 Bad Request |
+| 7 | GET | `/products/5/stock?quantity=1` | Producto sin stock | `quantity=1` | 200 OK |
+| 8 | GET | `/products/7/details` | Obtener detalles (existente) | - | 200 OK |
+| 9 | GET | `/products/999/details` | Obtener detalles (inexistente) | - | 404 Not Found |
+| 10 | GET | `/products/@#$` | ID con caracteres especiales | - | 404 Not Found |
 
----
+### Headers Recomendados
 
-## 📁 Estructura del Proyecto
-
-```
-📦 catalog-microservice/
-├── 📄 pom.xml                          # Configuración Maven
-├── 📖 README.md                        # Documentación
-├── 📂 src/
-│   ├── 📂 main/
-│   │   ├── 📂 java/com/techtrend/catalog/
-│   │   │   ├── 📂 model/
-│   │   │   │   └── 📄 Product.java      # 🏷️ Entidad de dominio
-│   │   │   ├── 📂 service/
-│   │   │   │   ├── 📄 CatalogService.java     # 🔌 Puerto (Interface)
-│   │   │   │   └── 📄 CatalogServiceImpl.java # 💼 Lógica de negocio
-│   │   │   ├── 📂 controller/
-│   │   │   │   └── 📄 CatalogController.java  # 🌐 REST Endpoints
-│   │   │   └── 📄 CatalogMicroserviceApplication.java # 🚀 Main
-│   │   └── 📂 resources/
-│   │       └── 📄 application.yml       # ⚙️ Configuración
-│   └── 📂 test/
-│       └── 📂 java/com/techtrend/catalog/
-│           ├── 📄 ProductTest.java              # 🧪 Tests entidad
-│           ├── 📄 CatalogServiceTest.java       # 🧪 Tests servicio  
-│           ├── 📄 CatalogControllerTest.java    # 🧪 Tests controller
-│           └── 📄 CatalogMicroserviceApplicationTest.java # 🧪 Tests integración
-```
-
----
-
-## 🔌 API Endpoints
-
-### 📦 Listar Productos Disponibles
 ```http
-GET /api/catalog/products
+Accept: application/json
+Content-Type: application/json
+```
+
+---
+
+## 📝 Casos de Prueba
+
+### Resumen de Tests
+
+| ID | Endpoint | Caso | Status | Validación |
+|----|----------|------|--------|------------|
+| TEST 1 | `GET /products` | Lista completa | 200 | Array con >10 productos |
+| TEST 2 | `GET /products` | Tiempo respuesta | 200 | < 1000ms |
+| TEST 3 | `GET /products/{id}` | Producto existente | 200 | Datos completos |
+| TEST 4 | `GET /products/{id}` | Producto inexistente | 404 | Body vacío |
+| TEST 5 | `GET /products/{id}` | Múltiples productos | 200 | 5 IDs diferentes |
+| TEST 6 | `GET /products/{id}/stock` | Stock suficiente | 200 | Response: true |
+| TEST 7 | `GET /products/{id}/stock` | Stock insuficiente | 200 | Response: false |
+| TEST 8 | `GET /products/{id}/stock` | Sin stock | 200 | Response: false |
+| TEST 9 | `GET /products/{id}/stock` | Producto inexistente | 200 | Response: false |
+| TEST 10 | `GET /products/{id}/details` | Detalles existentes | 200 | Info completa |
+| TEST 11 | `GET /products/{id}/details` | Detalles inexistentes | 404 | Body vacío |
+| TEST 12 | `GET /products/{id}` | Caracteres especiales | 404 | Manejo graceful |
+| TEST 13 | `GET /products/{id}/stock` | Cantidad negativa | 400 | Validación input |
+| TEST 14 | `GET /products` | Idempotencia | 200 | Múltiples calls iguales |
+| TEST 15 | `GET /products` | Carga (50 requests) | 200 | Throughput medido |
+
+---
+
+## 🔧 Pruebas con Postman
+
+### 1️⃣ Listar Todos los Productos
+
+**Request:**
+```http
+GET http://localhost:8080/api/catalog/products
 Accept: application/json
 ```
 
-**Respuesta Exitosa (200):**
+**Response Esperado (200 OK):**
 ```json
 [
   {
     "id": "1",
     "name": "Laptop Ryzen 7",
     "price": 9999.99,
-    "quantity": 50,
-    "available": true
+    "quantity": 50
+  },
+  {
+    "id": "2",
+    "name": "Mouse Gaming",
+    "price": 299.99,
+    "quantity": 100
   }
 ]
 ```
 
-### 🔍 Obtener Producto por ID
+---
+
+### 2️⃣ Obtener Producto por ID
+
+**Request (Existente):**
 ```http
-GET /api/catalog/products/{id}
+GET http://localhost:8080/api/catalog/products/1
 Accept: application/json
 ```
 
-**Respuesta Exitosa (200):**
+**Response (200 OK):**
 ```json
 {
   "id": "1",
-  "name": "Laptop Ryzen 7", 
+  "name": "Laptop Ryzen 7",
   "price": 9999.99,
-  "quantity": 50,
-  "available": true
+  "quantity": 50
 }
 ```
 
-**Producto No Encontrado (404):**
-```json
-{
-  "timestamp": "2025-08-16T22:00:00Z",
-  "status": 404,
-  "error": "Not Found"
-}
-```
-
-### 📊 Verificar Stock
+**Request (Inexistente):**
 ```http
-GET /api/catalog/products/{id}/stock?quantity={cantidad}
+GET http://localhost:8080/api/catalog/products/999
 Accept: application/json
 ```
 
-**Parámetros:**
-- `quantity` (required): Cantidad solicitada (entero positivo)
-
-**Respuesta Exitosa (200):**
-```json
-true  // Stock suficiente
+**Response (404 Not Found):**
 ```
-
-**Cantidad Inválida (400):**
-```json
-{
-  "error": "La cantidad debe ser mayor a 0"
-}
+HTTP/1.1 404 Not Found
+(empty body)
 ```
-
-### 📋 Obtener Detalles del Producto
-```http
-GET /api/catalog/products/{id}/details
-Accept: application/json
-```
-
-**Respuesta:** Igual que obtener producto por ID
 
 ---
 
-## ⚡ Inicio Rápido
+### 3️⃣ Verificar Stock
 
-### 📋 Prerrequisitos
-- ☕ **Java 17+** ([Descargar](https://adoptium.net/))
-- 🔧 **Maven 3.6+** ([Descargar](https://maven.apache.org/download.cgi))
-- 🌐 **curl** o **Postman** (para testing)
+**Request (Stock Suficiente):**
+```http
+GET http://localhost:8080/api/catalog/products/1/stock?quantity=10
+Accept: application/json
+```
 
-### 🚀 Instalación y Ejecución
+**Response (200 OK):**
+```json
+true
+```
 
+**Request (Stock Insuficiente):**
+```http
+GET http://localhost:8080/api/catalog/products/3/stock?quantity=100
+Accept: application/json
+```
+
+**Response (200 OK):**
+```json
+false
+```
+
+**Request (Cantidad Inválida):**
+```http
+GET http://localhost:8080/api/catalog/products/1/stock?quantity=-5
+Accept: application/json
+```
+
+**Response (400 Bad Request):**
+```json
+{
+  "timestamp": "2025-10-08T20:00:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "La cantidad debe ser mayor a 0"
+}
+```
+
+---
+
+### 4️⃣ Obtener Detalles del Producto
+
+**Request (Existente):**
+```http
+GET http://localhost:8080/api/catalog/products/7/details
+Accept: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": "7",
+  "name": "SSD 1TB",
+  "price": 899.99,
+  "quantity": 30
+}
+```
+
+**Request (Inexistente):**
+```http
+GET http://localhost:8080/api/catalog/products/999/details
+Accept: application/json
+```
+
+**Response (404 Not Found):**
+```
+HTTP/1.1 404 Not Found
+(empty body)
+```
+
+---
+
+### 📦 Variables de Postman (Opcional)
+
+Crea una colección con estas variables para facilitar las pruebas:
+
+```json
+{
+  "name": "Catalog Microservice",
+  "variables": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api/catalog"
+    },
+    {
+      "key": "product_id_valid",
+      "value": "1"
+    },
+    {
+      "key": "product_id_invalid",
+      "value": "999"
+    },
+    {
+      "key": "quantity_valid",
+      "value": "10"
+    },
+    {
+      "key": "quantity_invalid",
+      "value": "-5"
+    }
+  ]
+}
+```
+
+Luego usa: `{{base_url}}/products/{{product_id_valid}}`
+
+---
+
+## 🐛 Troubleshooting
+
+### Problema 1: Postman Retorna HTML en vez de JSON
+
+**Síntomas:**
+- Response muestra página HTML
+- Status 403 Forbidden o error de página
+
+**Causa:** Servidor no está corriendo o puerto incorrecto
+
+**Solución:**
 ```bash
-# 1️⃣ Clonar el repositorio
-git clone <repository-url>
-cd catalog-microservice
+# 1. Verificar si el servidor está corriendo
+tasklist | findstr java
 
-# 2️⃣ Compilar el proyecto
-mvn clean compile
-
-# 3️⃣ Ejecutar pruebas
-mvn test
-
-# 4️⃣ Iniciar la aplicación
+# 2. Iniciar el servidor
 mvn spring-boot:run
-```
 
-### 🧪 Verificar Funcionamiento
+# 3. Esperar mensaje: "Netty started on port 8080"
 
-```bash
-# Listar todos los productos disponibles
-curl http://localhost:8080/api/catalog/products
-
-# Obtener producto específico
-curl http://localhost:8080/api/catalog/products/1
-
-# Verificar stock (10 unidades de producto 1)
-curl "http://localhost:8080/api/catalog/products/1/stock?quantity=10"
-
-# Obtener detalles completos
-curl http://localhost:8080/api/catalog/products/1/details
-```
-
-### 📊 Respuesta Esperada
-```json
-[
-  {
-    "id": "1",
-    "name": "Laptop Ryzen 7",
-    "price": 9999.99,
-    "quantity": 50,
-    "available": true
-  },
-  // ... más productos
-]
-```
-
----
-
-## 🧪 Pruebas
-
-### 📈 Cobertura de Pruebas
-- **21 pruebas unitarias** ✅
-- **4 clases de test** 📝
-- **Cobertura completa** de casos de uso 🎯
-
-### 🏗️ Estructura de Testing
-
-| Clase de Test | Propósito | Cantidad | Tipo |
-|---------------|-----------|----------|------|
-| `ProductTest` | Lógica de entidad | 4 | Unitaria |
-| `CatalogServiceTest` | Lógica de negocio | 8 | Unitaria |
-| `CatalogControllerTest` | Endpoints REST | 8 | Integración |
-| `CatalogMicroserviceApplicationTest` | Contexto Spring | 1 | Integración |
-
-### 🎯 Escenarios de Prueba Críticos
-
-#### ✅ Verificación de Stock
-```java
-// ✅ Stock suficiente → true
-checkStock("1", 10) → true  // 10 pedidas, 50 disponibles
-
-// ❌ Stock insuficiente → false  
-checkStock("1", 60) → false // 60 pedidas, 50 disponibles
-
-// 🚫 Cantidad inválida → Exception
-checkStock("1", -1) → IllegalArgumentException
-
-// 🔍 Producto inexistente → false
-checkStock("999", 1) → false
-```
-
-#### 📦 Listado de Productos
-```java
-// Solo productos con stock > 0
-getAllProducts() → 13 productos (de 15 totales)
-```
-
-### 🏃‍♂️ Ejecutar Pruebas
-
-```bash
-# Todas las pruebas con salida mejorada
-mvn test
-
-# Pruebas específicas
-mvn test -Dtest=CatalogServiceTest
-
-# Con reporte de cobertura JaCoCo
-mvn test jacoco:report
-
-# Generar reporte HTML de pruebas
-mvn surefire-report:report
-
-# Limpiar y ejecutar todas las pruebas
-mvn clean test
-
-# Modo verbose para debugging
-mvn test -X
-```
-
-### 📊 Salida Mejorada de Pruebas
-
-La salida de los tests ahora incluye:
-- ✅ **Emojis descriptivos** para mejor legibilidad
-- ✅ **Mensajes informativos** de cada test
-- ✅ **Tiempo de ejecución** individual por test
-- ✅ **Contexto de negocio** en cada validación
-- ✅ **Información detallada** de productos y operaciones
-
-**Ejemplo de salida:**
-```
-🧪 INICIANDO SUITE DE PRUEBAS - MICROSERVICIO CATÁLOGO TECHTREND
-🔍 Probando búsqueda de producto por ID: 1
-✅ Producto encontrado: Laptop Ryzen 7 - $9999.99
-📊 Probando verificación de stock suficiente: 10 unidades de 50 disponibles
-✅ Test exitoso: Stock suficiente confirmado
-🌐 Probando endpoint: GET /api/catalog/products
-✅ Test exitoso: Endpoint retorna 2 productos con status 200 OK
-
-Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
-```
-
-### 📈 Reportes Disponibles
-
-| Tipo de Reporte | Comando | Ubicación |
-|------------------|---------|-----------|
-| **Cobertura JaCoCo** | `mvn jacoco:report` | `target/site/jacoco/index.html` |
-| **Surefire HTML** | `mvn surefire-report:report` | `target/site/surefire-report.html` |
-| **Resultados XML** | Automático con `mvn test` | `target/surefire-reports/*.xml` |
-
----
-
-## 📊 Datos Mock
-
-### 🛍️ Catálogo de Productos (15 items)
-
-| ID | Producto | Precio | Stock | Estado |
-|----|----------|--------|-------|--------|
-| 1 | Laptop Ryzen 7 | $9,999.99 | 50 | ✅ Disponible |
-| 2 | Mouse Gaming | $299.99 | 100 | ✅ Disponible |
-| 3 | Teclado Mecánico | $599.99 | 25 | ✅ Disponible |
-| 4 | Monitor 4K | $1,299.99 | 15 | ✅ Disponible |
-| 5 | Auriculares Bluetooth | $199.99 | 0 | ❌ Agotado |
-| 6 | Webcam HD | $149.99 | 75 | ✅ Disponible |
-| 7 | SSD 1TB | $899.99 | 30 | ✅ Disponible |
-| 8 | RAM 16GB DDR4 | $449.99 | 60 | ✅ Disponible |
-| 9 | Tarjeta Gráfica RTX 4060 | $3,499.99 | 8 | ⚠️ Stock Bajo |
-| 10 | Procesador Intel i7 | $2,199.99 | 20 | ✅ Disponible |
-| 11 | Motherboard Gaming | $1,599.99 | 12 | ✅ Disponible |
-| 12 | Fuente de Poder 750W | $799.99 | 35 | ✅ Disponible |
-| 13 | Case Gaming RGB | $699.99 | 18 | ✅ Disponible |
-| 14 | Cooler CPU Líquido | $999.99 | 22 | ✅ Disponible |
-| 15 | Tablet Android 10" | $1,899.99 | 0 | ❌ Agotado |
-
-### 📈 Estadísticas del Inventario
-- **Total productos**: 15
-- **Disponibles**: 13 (86.7%)
-- **Agotados**: 2 (13.3%)
-- **Stock total**: 470 unidades
-- **Valor inventario**: ~$15,000,000
-
----
-
-## 🔧 Configuración
-
-### ⚙️ application.yml
-```yaml
-server:
-  port: 8080
-
-spring:
-  application:
-    name: catalog-microservice
-  
-logging:
-  level:
-    com.techtrend.catalog: DEBUG
-    reactor.netty: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
-```
-
-### 🌍 Perfiles de Entorno
-
-```bash
-# Desarrollo
-mvn spring-boot:run -Dspring.profiles.active=dev
-
-# Producción  
-mvn spring-boot:run -Dspring.profiles.active=prod
-
-# Testing
-mvn test -Dspring.profiles.active=test
-```
-
----
-
-## 📈 Monitoreo
-
-### 🏥 Health Check
-```bash
+# 4. Verificar health check
 curl http://localhost:8080/actuator/health
 ```
 
-**Respuesta:**
-```json
-{
-  "status": "UP",
-  "components": {
-    "diskSpace": {"status": "UP"},
-    "ping": {"status": "UP"}
-  }
-}
+---
+
+### Problema 2: Puerto 8080 ya está en uso
+
+**Error:**
+```
+Web server failed to start. Port 8080 was already in use.
 ```
 
-### 📊 Métricas
+**Solución Windows:**
 ```bash
-curl http://localhost:8080/actuator/info
+# Encontrar proceso usando el puerto
+netstat -ano | findstr :8080
+
+# Matar el proceso (reemplaza 1234 con el PID real)
+taskkill /F /PID 1234
 ```
 
-### 🔍 Logs
+**Solución Linux/Mac:**
 ```bash
-# Ver logs en tiempo real
-tail -f logs/catalog-microservice.log
+# Encontrar proceso
+lsof -i :8080
 
-# Filtrar errores
-grep "ERROR" logs/catalog-microservice.log
+# Matar el proceso
+kill -9 <PID>
 ```
 
 ---
 
-## 🤝 Contribución
+### Problema 3: Tests Fallan con Timeout
 
-### 🔄 Flujo de Desarrollo
-1. **Fork** del repositorio
-2. **Crear** rama feature (`git checkout -b feature/nueva-funcionalidad`)
-3. **Commit** cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. **Push** a la rama (`git push origin feature/nueva-funcionalidad`)
-5. **Crear** Pull Request
-
-### 📝 Estándares de Código
-- ✅ Seguir convenciones de Java
-- ✅ Documentar métodos públicos
-- ✅ Escribir pruebas para nueva funcionalidad
-- ✅ Mantener cobertura de pruebas > 80%
-
-### 🧪 Antes de Enviar PR
-```bash
-# Ejecutar todas las pruebas
-mvn clean test
-
-# Verificar estilo de código
-mvn checkstyle:check
-
-# Compilar sin errores
-mvn clean compile
+**Error:**
 ```
+java.util.concurrent.TimeoutException
+```
+
+**Causa:** Servidor tarda en iniciar
+
+**Solución:**
+```bash
+# Aumentar memoria JVM
+set MAVEN_OPTS=-Xmx1024m
+mvn test -Dtest=CatalogRestIntegrationTest
+
+# O aumentar timeout
+mvn test -Dtest=CatalogRestIntegrationTest -Dmaven.test.timeout=60000
+```
+
+---
+
+### Problema 4: JaCoCo Incompatibilidad con Java 25
+
+**Error:**
+```
+Unsupported class file major version 69
+```
+
+**Solución:**
+```bash
+# Ejecutar sin JaCoCo
+mvn test -Dtest=CatalogRestIntegrationTest -Djacoco.skip=true
+```
+
+---
+
+### Problema 5: Postman No Encuentra el Servidor
+
+**Checklist de Verificación:**
+
+1. ✅ **¿Servidor corriendo?**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+2. ✅ **¿Puerto correcto (8080)?**
+   ```
+   http://localhost:8080/api/catalog/products
+   ```
+
+3. ✅ **¿Header Accept configurado?**
+   ```
+   Accept: application/json
+   ```
+
+4. ✅ **¿Firewall bloqueando?**
+   - Desactiva temporalmente el firewall para probar
+
+5. ✅ **¿Proxy en Postman?**
+   - Settings → Proxy → Desactivar
+
+---
+
+## ✅ Checklist Final
+
+Antes de iniciar las pruebas en Postman:
+
+- [ ] `mvn clean compile` - Proyecto compila sin errores
+- [ ] `mvn spring-boot:run` - Servidor inicia en puerto 8080
+- [ ] Ver mensaje: "Netty started on port 8080"
+- [ ] Verificar health: `http://localhost:8080/actuator/health`
+- [ ] Postman configurado con URLs usando puerto **8080**
+- [ ] Header `Accept: application/json` configurado
 
 ---
 
 ## 📚 Recursos Adicionales
 
-### 📖 Documentación
-- [Spring WebFlux Reference](https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html)
-- [Reactor Core Documentation](https://projectreactor.io/docs/core/release/reference/)
-- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+### Documentación Relacionada
+- [README.md](README.md) - Documentación general del proyecto
+- [TEST-RESULTS-ANALYSIS.md](TEST-RESULTS-ANALYSIS.md) - Análisis de resultados y optimización
+- [pom.xml](pom.xml) - Configuración Maven y dependencias
 
-### 🏗️ Arquitectura
-- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Microservices Patterns](https://microservices.io/patterns/)
-
----
-
-## 👨‍💻 Autor
-
-**Desarrollado para TechTrend E-commerce Platform**
-
-### 📝 Commits de Identificación
-- `feat: implementación inicial del microservicio de catálogo`
-- `test: pruebas unitarias con cobertura completa de escenarios`
-- `config: configuración de Spring Boot WebFlux reactivo`
-- `docs: documentación y estructura de proyecto`
-- `data: ampliación de datos mock a 15 productos`
+### Documentación Externa
+- [Spring WebTestClient](https://docs.spring.io/spring-framework/reference/testing/webtestclient.html)
+- [Spring Boot Testing](https://spring.io/guides/gs/testing-web/)
+- [Postman Documentation](https://learning.postman.com/docs/getting-started/introduction/)
 
 ---
 
-<div align="center">
+**📅 Última actualización:** Octubre 2025  
+**👨‍💻 Autor:** TechTrend Development Team  
+**📊 Versión:** 3.0.0 (Limpia y Consolidada)
 
-**🚀 ¡Listo para producción! 🚀**
+---
 
-*Microservicio de Catálogo TechTrend - Versión 1.0.0*
-
-
-</div>
+**🚀 ¡Microservicio validado y listo para testing!**
