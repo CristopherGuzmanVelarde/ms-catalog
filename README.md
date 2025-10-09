@@ -145,7 +145,8 @@ Content-Type: application/json
 | TEST 14 | `GET /products` | Idempotencia | 200 | Múltiples calls iguales |
 | TEST 15 | `GET /products` | Carga (50 requests) | 200 | Throughput medido |
 
----
+<img width="477" height="513" alt="image" src="https://github.com/user-attachments/assets/7df86c76-28a0-4b7b-9b32-a82db8dc4f54" />
+
 
 ## 🔧 Pruebas con Postman
 
